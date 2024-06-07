@@ -1,0 +1,30 @@
+name: Compiling Java Application
+
+on:
+  push:
+    paths:
+      - 'converted_sql-java/**'
+  pull_request:
+    paths:
+      - 'converted_sql-java/**'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # Fetch all history to ensure access to all branches and commits
+
+    - name: Set up JDK
+      uses: actions/setup-java@v2
+      with:
+        distribution: 'adopt'
+        java-version: '11'
+
+    - name: Compile Java files
+      run: |
+        cd converted_sql-java/src
+        javac *.java
