@@ -1,30 +1,4 @@
-To convert the given PL/SQL code to Java, we need to perform the following steps:
 
-1. Mapping Data Types:
-   - REF_CURSOR: There is no direct equivalent in Java. You can use ResultSet or List<Map<String, Object>> to represent the result set.
-   - EXCEPTION: In Java, you can use custom exception classes or the built-in Exception class.
-
-2. Database Connectivity:
-   - Use JDBC for database interactions. Import the necessary JDBC libraries and establish a connection to the database using DriverManager.getConnection().
-   - Execute queries and updates using PreparedStatement or Statement.
-   - Handle result sets using ResultSet.
-
-3. Control Structures:
-   - Convert PL/SQL loops to Java loops (for, while, do-while).
-   - Convert PL/SQL conditional statements (IF-THEN-ELSE, CASE) to Java conditional statements (if-else, switch-case).
-   - Convert PL/SQL exception handling (EXCEPTION, RAISE) to Java exception handling (try-catch-finally).
-
-4. Stored Procedures and Functions:
-   - Use CallableStatement to execute stored procedures and functions.
-   - Handle parameters using setXXX() methods of CallableStatement.
-
-5. Transaction anagement:
-   - Use JDBC's transaction management methods (commit, rollback) to manage transactions.
-   - Implement connection pooling for efficient database connection management using third-party libraries like Apache Commons DBCP or HikariCP.
-
-Here's the converted Java code:
-
-```jav
 import java.sql.*;
 import java.util.List;
 import java.util.Map;
@@ -255,6 +229,3 @@ public class StudentRegistrationSystem {
         system.closeConnection();
     }
 }
-```
-
-Please note that this is a basic conversion of the provided PL/SQL code to Java. You may need to modify the code according to your specific requirements and database configuration.
