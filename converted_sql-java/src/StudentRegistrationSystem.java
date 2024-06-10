@@ -18,7 +18,7 @@ public class StudentRegistrationSystem {
         }
     }
 
-    // COMMON EXCEPTIONS
+    // COMMON EXCEPTION
     public static class InvalidBException extends Exception {
         public InvalidBException(String message) {
             super(message);
