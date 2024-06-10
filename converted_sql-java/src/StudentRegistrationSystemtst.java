@@ -2,7 +2,7 @@
 import java.sql.*;
 import java.util.*;
 
-public class StudentRegistrationSystem {
+public class StudentRegistrationSystemtst {
 
     private static final String DB_URL = "jdbc:oracle:thin:@localhost:1521:xe";
     private static final String DB_USER = "username";
