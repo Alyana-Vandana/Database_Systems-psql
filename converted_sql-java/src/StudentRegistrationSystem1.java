@@ -58,7 +58,7 @@ public class StudentRegistrationSystem1 {
     // Database Connectivity
     private Connection connection;
 
-    public StudentRegistrationSystem() {
+    public StudentRegistrationSystem1() {
         // Initialize the database connection
         try {
             connection = DriverManager.getConnection("jdbc:mysql://localhost:3306/database", "username", "password");
