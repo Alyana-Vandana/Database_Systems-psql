@@ -331,5 +331,4 @@ public class StudentRegistrationSystem1 {
         system.closeConnection();
     }
 }
-```
 
