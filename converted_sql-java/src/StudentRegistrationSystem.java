@@ -38,8 +38,7 @@ DEPTCODE of a COURSES
  int
 validCount = 0;
  try {
- Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
-"username", "password");
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","username", "password");
  PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM COURSES WHERE
 UPPER(DEPT_CODE) = UPPER(?) AND COURSE# = ?");
  stmt.setString(1, deptCode);
