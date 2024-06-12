@@ -1,78 +1,81 @@
-
 import java.sql.*;
 
-public class StudentRegistrationSystem {
- private Connection connection;
-
- public StudentRegistrationSystem() {
- // Initialize database connection
- try {
- connection = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
- } catch(SQLException e) {
- e.printStackTrace();
- }
- }
+public class
+StudentRegistrationSystem {
 
  // Helper Functions
 
  /*
  * Function to validate B# of a student
  */
- public boolean validateStudentBNumber(String bNumber) {
+ public static
+boolean validateStudentB(String bNumber) {
  int studentCount = 0;
  try {
- PreparedStatement statement = connection.prepareStatement("SELECT COUNT(1) FROM STUDENTS WHERE UPPER(B#) = UPPER(?)");
- statement.setString(1, bNumber);
- ResultSet resultSet = statement.executeQuery();
- if (resultSet.next()) {
- studentCount = resultSet.getInt(1);
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ PreparedStatement
+stmt = conn.prepareStatement("SELECT COUNT(1) FROM STUDENTS WHERE UPPER(B#) = UPPER(?)");
+ stmt.setString(1,
+bNumber);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ studentCount = rs.getInt(1);
  }
- } catch (SQLException e) {
+ conn.close();
+
+} catch (SQLException e) {
  e.printStackTrace();
  }
  return studentCount > 0;
  }
 
  /*
- * Function to validate DEPTCODE of a COURSES
+ * Function to validate
+DEPTCODE of a COURSES
  */
- public boolean
-validateCourseDeptCode(String deptCode, String courseNumber) {
- int validCount = 0;
+ public static boolean validateDeptCodeCourse(String deptCode, String courseNumber) {
+ int
+validCount = 0;
  try {
- PreparedStatement
-statement = connection.prepareStatement("SELECT COUNT(1) FROM COURSES WHERE UPPER(DEPT_CODE) = UPPER(?) AND COURSE# =
-?");
- statement.setString(1, deptCode);
- statement.setString(2, courseNumber);
- ResultSet resultSet =
-statement.executeQuery();
- if (resultSet.next()) {
- validCount = resultSet.getInt(1);
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
+"username", "password");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM COURSES WHERE
+UPPER(DEPT_CODE) = UPPER(?) AND COURSE# = ?");
+ stmt.setString(1, deptCode);
+ stmt.setString(2, courseNumber);
+
+ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ validCount = rs.getInt(1);
  }
- } catch (SQLException e)
-{
+ conn.close();
+ } catch
+(SQLException e) {
  e.printStackTrace();
  }
  return validCount > 0;
  }
 
  /*
- * Function to validate classid of a classes
+ * Function to validate classid of a
+classes
  */
-
-public boolean validateClassId(String classId) {
+ public static boolean validateStudentClassId(String classId) {
  int classCount = 0;
  try {
- PreparedStatement statement =
-connection.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?)");
- statement.setString(1,
-classId);
- ResultSet resultSet = statement.executeQuery();
- if (resultSet.next()) {
- classCount =
-resultSet.getInt(1);
+ Connection
+conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+
+PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?)");
+
+stmt.setString(1, classId);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ classCount = rs.getInt(1);
  }
+
+conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
@@ -80,90 +83,99 @@ resultSet.getInt(1);
  }
 
  /*
- *
-Function to validate whether particular class is offered in current semester or not
+ * Function
+to validate whether particular class is offered in current semester or not
  * Current sem - FALL2018
  */
-
-public boolean validateCurrentSemesterClass(String classId) {
+ public
+static boolean validateCurrentSemClass(String classId) {
  int classCount = 0;
  try {
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
  PreparedStatement
-statement = connection.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?) AND
-UPPER(SEMESTER) = 'FALL' AND YEAR = 2018");
- statement.setString(1, classId);
- ResultSet resultSet =
-statement.executeQuery();
- if (resultSet.next()) {
- classCount = resultSet.getInt(1);
+stmt = conn.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?) AND UPPER(SEMESTER) = 'FALL'
+AND YEAR = 2018");
+ stmt.setString(1, classId);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ classCount
+= rs.getInt(1);
  }
- } catch (SQLException e)
-{
+ conn.close();
+ } catch (SQLException e) {
  e.printStackTrace();
  }
  return classCount > 0;
+
+}
+
+ /*
+ * Procedure to get course# and dept_code from classes for given classid
+ */
+ public static void
+getCourseInfo(String classId, String[] deptCodeOut, String[] courseNumberOut) {
+ try {
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ PreparedStatement
+stmt = conn.prepareStatement("SELECT DEPT_CODE, COURSE# FROM CLASSES WHERE CLASSID = ?");
+ stmt.setString(1,
+classId);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ deptCodeOut[0] = rs.getString("DEPT_CODE");
+
+courseNumberOut[0] = rs.getString("COURSE#");
+ }
+ conn.close();
+ } catch (SQLException e) {
+
+e.printStackTrace();
+ }
  }
 
  /*
- * Procedure to get course# and dept_code from classes
-for given classid
+ * Function to validate whether particular student is enrolled or not
  */
- public void getCourseInfo(String classId, String[] deptCodeOut, String[] courseNumberOut) {
+ public
+static boolean validateStudentEnrollments(String bNumber, String classId) {
+ int enrollmentsCount = 0;
+ String
+lDeptCodeOut = "";
+ String lCourseNumberOut = "";
+ String tDeptCodeOut = "";
+ String tCourseNumberOut = "";
 
 try {
- PreparedStatement statement = connection.prepareStatement("SELECT DEPT_CODE, COURSE# FROM CLASSES WHERE CLASSID
-= ?");
- statement.setString(1, classId);
- ResultSet resultSet = statement.executeQuery();
- if (resultSet.next()) {
-
-deptCodeOut[0] = resultSet.getString("DEPT_CODE");
- courseNumberOut[0] = resultSet.getString("COURSE#");
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username",
+"password");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS E WHERE UPPER(E.B#) =
+UPPER(?)");
+ stmt.setString(1, bNumber);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ enrollmentsCount =
+rs.getInt(1);
  }
- }
-catch (SQLException e) {
- e.printStackTrace();
- }
- }
+ if (enrollmentsCount > 0) {
+ PreparedStatement stmt2 = conn.prepareStatement("SELECT CLASSID FROM
+ENROLLMENTS E WHERE UPPER(E.B#) = UPPER(?)");
+ stmt2.setString(1, bNumber);
+ ResultSet rs2 = stmt2.executeQuery();
 
- /*
- * Function to validate whether particular student is
-enrolled or not
- */
- public boolean validateStudentEnrollments(String bNumber, String classId) {
- int
-enrollmentsCount = 0;
- String deptCodeOut = "";
- String courseNumberOut = "";
- String tempDeptCodeOut = "";
-
-String tempCourseNumberOut = "";
- try {
- PreparedStatement statement = connection.prepareStatement("SELECT COUNT(1)
-FROM ENROLLMENTS E WHERE UPPER(E.B#) = UPPER(?)");
- statement.setString(1, bNumber);
- ResultSet resultSet =
-statement.executeQuery();
- if (resultSet.next()) {
- enrollmentsCount = resultSet.getInt(1);
- }
-
-
-getCourseInfo(classId, new String[]{deptCodeOut}, new String[]{courseNumberOut});
-
- statement =
-connection.prepareStatement("SELECT CLASSID FROM ENROLLMENTS E WHERE UPPER(E.B#) = UPPER(?)");
-
-statement.setString(1, bNumber);
- resultSet = statement.executeQuery();
- while (resultSet.next()) {
-
-getCourseInfo(resultSet.getString("CLASSID"), new String[]{tempDeptCodeOut}, new String[]{tempCourseNumberOut});
- if
-(tempDeptCodeOut.equals(deptCodeOut) && tempCourseNumberOut.equals(courseNumberOut)) {
+while (rs2.next()) {
+ String c1RecClassId = rs2.getString("CLASSID");
+ getCourseInfo(c1RecClassId, new
+String[]{tDeptCodeOut}, new String[]{tCourseNumberOut});
+ if (tDeptCodeOut.equals(lDeptCodeOut) &&
+tCourseNumberOut.equals(lCourseNumberOut)) {
+ conn.close();
  return true;
  }
  }
+ }
+ conn.close();
  } catch
 (SQLException e) {
  e.printStackTrace();
@@ -175,34 +187,39 @@ getCourseInfo(resultSet.getString("CLASSID"), new String[]{tempDeptCodeOut}, new
  * Function to validate pre-req
 course condition for given classid
  */
- public boolean validateStudentPrerequisite(String bNumber, String classId) {
-
-String deptCode = "";
- String courseNumber = "";
- String tempDeptCode = "";
- String tempCourseNumber = "";
-
-String prerequisites = "";
+ public static boolean validateStudentPrereq(String bNumber, String classId)
+{
+ String lDeptCode = "";
+ String lCourseNumber = "";
+ String lCurrDeptCode = "";
+ String lCurrCourseNumber =
+"";
+ String lPrereq = "";
  try {
- getCourseInfo(classId, new String[]{deptCode}, new String[]{courseNumber});
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
 
-
-PreparedStatement statement = connection.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE
-UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID) != UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND
-C.YEAR = 2018");
- statement.setString(1, bNumber);
- statement.setString(2, classId);
- ResultSet resultSet =
-statement.executeQuery();
- while (resultSet.next()) {
- getCourseInfo(resultSet.getString("CLASSID"), new
-String[]{tempDeptCode}, new String[]{tempCourseNumber});
- getClassPrerequisites(tempDeptCode, tempCourseNumber, new
-String[]{prerequisites});
- if (prerequisites.contains(deptCode + courseNumber)) {
+getCourseInfo(classId, new String[]{lDeptCode}, new String[]{lCourseNumber});
+ PreparedStatement stmt =
+conn.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID)
+!= UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND C.YEAR = 2018");
+ stmt.setString(1,
+bNumber);
+ stmt.setString(2, classId);
+ ResultSet rs = stmt.executeQuery();
+ while (rs.next()) {
+ String
+c1RecClassId = rs.getString("CLASSID");
+ getCourseInfo(c1RecClassId, new String[]{lCurrDeptCode}, new
+String[]{lCurrCourseNumber});
+ classPrereq(lCurrDeptCode, lCurrCourseNumber, new String[]{lPrereq});
+ if
+(lPrereq.contains(lDeptCode + lCourseNumber)) {
+ conn.close();
  return false;
  }
  }
+ conn.close();
  } catch
 (SQLException e) {
  e.printStackTrace();
@@ -214,110 +231,124 @@ String[]{prerequisites});
  * Function to validate last enrolled class for
 the student
  */
- public boolean validateLastEnrollment(String bNumber) {
+ public static boolean validateLastEnrollment(String bNumber) {
  int classCount = 0;
  try {
 
-PreparedStatement statement = connection.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS WHERE UPPER(B#) =
-UPPER(?)");
- statement.setString(1, bNumber);
- ResultSet resultSet = statement.executeQuery();
- if
-(resultSet.next()) {
- classCount = resultSet.getInt(1);
+Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+
+PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS WHERE UPPER(B#) = UPPER(?)");
+
+stmt.setString(1, bNumber);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ classCount = rs.getInt(1);
  }
+
+conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
-
-return classCount != 1;
+ return classCount == 1;
  }
 
  /*
- * Function to validate last enrolled student for the class
+ * Function
+to validate last enrolled student for the class
  */
- public boolean
-validateLastStudent(String classId) {
- int studentCount = 0;
+ public static boolean validateLastStudent(String classId) {
+ int
+studentCount = 0;
  try {
- PreparedStatement statement =
-connection.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS WHERE UPPER(CLASSID) = UPPER(?)");
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
+"username", "password");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS WHERE
+UPPER(CLASSID) = UPPER(?)");
+ stmt.setString(1, classId);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
 
-statement.setString(1, classId);
- ResultSet resultSet = statement.executeQuery();
- if (resultSet.next()) {
-
-studentCount = resultSet.getInt(1);
+studentCount = rs.getInt(1);
  }
+ conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
- return studentCount !=
-1;
+ return
+studentCount == 1;
  }
 
  /*
  * Function to validate if class is full
  */
- public boolean validateClassFull(String classId) {
- int
-classCount = 0;
+ public static boolean
+validateClassFull(String classId) {
+ int classCount = 0;
  try {
- PreparedStatement statement = connection.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE
-UPPER(CLASSID) = UPPER(?) AND LIMIT = CLASS_SIZE");
- statement.setString(1, classId);
- ResultSet resultSet =
-statement.executeQuery();
- if (resultSet.next()) {
- classCount = resultSet.getInt(1);
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ PreparedStatement
+stmt = conn.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?) AND LIMIT = CLASS_SIZE");
+
+stmt.setString(1, classId);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ classCount = rs.getInt(1);
  }
- } catch (SQLException e)
-{
+
+conn.close();
+ } catch (SQLException e) {
  e.printStackTrace();
  }
  return classCount > 0;
  }
 
  /*
- * Function to get the count of student enrollments
-
-*/
- public int getStudentEnrollmentCount(String bNumber) {
- int enrollmentCount = 0;
+ * Function
+to get the count of student enrollments
+ */
+ public static int getStudentEnrollCount(String bNumber) {
+ int
+enrollCount = 0;
  try {
- PreparedStatement
-statement = connection.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS EN, CLASSES CL WHERE UPPER(EN.B#) = UPPER(?)
-AND UPPER(EN.CLASSID) = UPPER(CL.CLASSID) AND UPPER(CL.SEMESTER) = 'FALL' AND CL.YEAR = 2018");
-
-statement.setString(1, bNumber);
- ResultSet resultSet = statement.executeQuery();
- if (resultSet.next()) {
-
-enrollmentCount = resultSet.getInt(1);
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
+"username", "password");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS EN,
+CLASSES CL WHERE UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(CL.CLASSID) AND UPPER(CL.SEMESTER) = 'FALL' AND
+CL.YEAR = 2018");
+ stmt.setString(1, bNumber);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ enrollCount
+= rs.getInt(1);
  }
+ conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
- return
-enrollmentCount;
- }
+ return enrollCount;
+
+}
 
  /*
  * Function to get classid from courses from prev semester i.e not FALL 2018
  */
- public
-String getClassId(String courseInfo) {
+ public static String
+getClassId(String courseInfo) {
  String classId = "";
  try {
- PreparedStatement statement =
-connection.prepareStatement("SELECT CLASSID FROM CLASSES CL WHERE UPPER(CL.DEPT_CODE) || CL.COURSE# = UPPER(?) AND NOT
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ PreparedStatement
+stmt = conn.prepareStatement("SELECT CLASSID FROM CLASSES CL WHERE UPPER(CL.DEPT_CODE) || CL.COURSE# = UPPER(?) AND NOT
 (UPPER(CL.SEMESTER) = 'FALL' AND CL.YEAR = 2018)");
- statement.setString(1, courseInfo);
- ResultSet resultSet =
-statement.executeQuery();
- if (resultSet.next()) {
- classId = resultSet.getString("CLASSID");
+ stmt.setString(1, courseInfo);
+ ResultSet rs =
+stmt.executeQuery();
+ if (rs.next()) {
+ classId = rs.getString("CLASSID");
  }
+ conn.close();
  } catch
 (SQLException e) {
  e.printStackTrace();
@@ -329,232 +360,162 @@ statement.executeQuery();
  * Function to get grade of student for
 particular class - from enrollments
  */
- public String getGrade(String bNumber, String classId) {
- String grade =
-"";
+ public static String getGrade(String bNumber, String classId) {
+ String
+grade = "";
  try {
- PreparedStatement statement = connection.prepareStatement("SELECT EN.LGRADE FROM ENROLLMENTS EN WHERE
-UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(?)");
- statement.setString(1, bNumber);
- statement.setString(2,
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
+"username", "password");
+ PreparedStatement stmt = conn.prepareStatement("SELECT EN.LGRADE FROM ENROLLMENTS EN
+WHERE UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(?)");
+ stmt.setString(1, bNumber);
+ stmt.setString(2,
 classId);
- ResultSet resultSet = statement.executeQuery();
- if (resultSet.next()) {
- grade =
-resultSet.getString("LGRADE");
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+ grade = rs.getString("LGRADE");
  }
+
+conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
  return grade;
  }
 
-
-/*
- * Function to validate pre-req course condition for given classid
- */
- public boolean
-validateStudentPrerequisiteGrade(String bNumber, String classId) {
- String deptCode = "";
- String courseNumber =
-"";
- String prerequisites = "";
- try {
- getCourseInfo(classId, new String[]{deptCode}, new
-String[]{courseNumber});
-
- PreparedStatement statement = connection.prepareStatement("SELECT REGEXP_SUBSTR(C_PREREQ,
-'[^,]+', 1, LEVEL) AS DATA FROM DUAL CONNECT BY REGEXP_SUBSTR(C_PREREQ, '[^,]+', 1, LEVEL) IS NOT NULL");
-
-statement.setString(1, prerequisites);
- ResultSet resultSet = statement.executeQuery();
- while (resultSet.next()) {
-
-String currPrerequisite = resultSet.getString("DATA");
- String currClassId = getClassId(currPrerequisite);
- if
-(currClassId == null) {
- return false;
- }
- String grade = getGrade(bNumber, currClassId);
- if (grade == null ||
-(Character.toUpperCase(grade.charAt(0)) > 'C' || grade.toUpperCase().equals("C-"))) {
- return false;
- }
- }
- }
-catch (SQLException e) {
- e.printStackTrace();
- }
- return true;
- }
-
  /*
- * Procedures to display the tuples in
-each of the seven tables for this project.
- * Procedure "show_students"
+ * Function to
+validate pre-req course condition for given classid
  */
- public ResultSet showStudents() {
-
-ResultSet resultSet = null;
+ public static boolean validateStudentPrereqGrade(String
+bNumber, String classId) {
+ String lDeptCode = "";
+ String lCourseNumber = "";
+ String lPrereq = "";
+ String
+lClassId = "";
+ String lCurrPrereq = "";
+ String lGrade = "";
  try {
- PreparedStatement statement = connection.prepareStatement("SELECT * FROM
-STUDENTS");
- resultSet = statement.executeQuery();
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+
+getCourseInfo(classId, new String[]{lDeptCode}, new String[]{lCourseNumber});
+ PreparedStatement stmt =
+conn.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID)
+!= UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND C.YEAR = 2018");
+ stmt.setString(1,
+bNumber);
+ stmt.setString(2, classId);
+ ResultSet rs = stmt.executeQuery();
+ while (rs.next()) {
+ lClassId =
+rs.getString("CLASSID");
+ getCourseInfo(lClassId, new String[]{lCurrDeptCode}, new String[]{lCurrCourseNumber});
+
+classPrereq(lCurrDeptCode, lCurrCourseNumber, new String[]{lPrereq});
+ if (lPrereq.contains(lDeptCode + lCourseNumber))
+{
+ conn.close();
+ return false;
+ }
+ }
+ conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
- return
-resultSet;
+
+return true;
  }
 
  /*
  * Procedures to display the tuples in each of the seven tables for this project.
  * Procedure
-"show_tas"
+"show_students"
  */
- public ResultSet showTAs() {
- ResultSet resultSet = null;
+ public static void showStudents() {
  try {
- PreparedStatement statement =
-connection.prepareStatement("SELECT * FROM TAS");
- resultSet = statement.executeQuery();
- } catch (SQLException e)
-{
- e.printStackTrace();
- }
- return resultSet;
- }
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ Statement stmt =
+conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM STUDENTS");
+ while (rs.next()) {
 
- /*
- * Procedures to display the tuples in each of the seven
-tables for this project.
- * Procedure "show_courses"
- */
- public ResultSet showCourses() {
- ResultSet resultSet =
-null;
- try {
- PreparedStatement statement = connection.prepareStatement("SELECT * FROM COURSES");
- resultSet =
-statement.executeQuery();
- } catch (SQLException e) {
- e.printStackTrace();
- }
- return resultSet;
- }
-
- /*
- *
-Procedures to display the tuples in each of the seven tables for this project.
- * Procedure "show_classes"
- */
-
-public ResultSet showClasses() {
- ResultSet resultSet = null;
- try {
- PreparedStatement statement =
-connection.prepareStatement("SELECT * FROM CLASSES");
- resultSet = statement.executeQuery();
- } catch (SQLException
-e) {
- e.printStackTrace();
- }
- return resultSet;
- }
-
- /*
- * Procedures to display the tuples in each of the seven
-tables for this project.
- * Procedure "show_enrollments"
- */
- public ResultSet showEnrollments() {
- ResultSet
-resultSet = null;
- try {
- PreparedStatement statement = connection.prepareStatement("SELECT * FROM ENROLLMENTS");
-
-resultSet = statement.executeQuery();
- } catch (SQLException e) {
- e.printStackTrace();
- }
- return resultSet;
+System.out.println(rs.getString("B#") + " " + rs.getString("FIRST_NAME") + " " + rs.getString("LAST_NAME"));
 
 }
-
- /*
- * Procedures to display the tuples in each of the seven tables for this project.
- * Procedure
-"show_prerequisites"
- */
- public ResultSet showPrerequisites() {
- ResultSet resultSet = null;
- try {
-
-PreparedStatement statement = connection.prepareStatement("SELECT * FROM PREREQUISITES");
- resultSet =
-statement.executeQuery();
+ conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
- return resultSet;
+ }
+
+ /*
+ * Procedures to display the
+tuples in each of the seven tables for this project.
+ * Procedure "show_tas"
+ */
+ public static void showTAs() {
+
+try {
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username",
+"password");
+ Statement stmt = conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM TAS");
+
+while (rs.next()) {
+ System.out.println(rs.getString("B#") + " " + rs.getString("FIRST_NAME") + " " +
+rs.getString("LAST_NAME"));
+ }
+ conn.close();
+ } catch (SQLException e) {
+ e.printStackTrace();
+ }
  }
 
  /*
  *
 Procedures to display the tuples in each of the seven tables for this project.
- * Procedure "show_logs"
+ * Procedure "show_courses"
  */
- public
-ResultSet showLogs() {
- ResultSet resultSet = null;
+
+public static void showCourses() {
  try {
- PreparedStatement statement =
-connection.prepareStatement("SELECT * FROM LOGS");
- resultSet = statement.executeQuery();
- } catch (SQLException e)
-{
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ Statement stmt =
+conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM COURSES");
+ while (rs.next()) {
+
+System.out.println(rs.getString("DEPT_CODE") + " " + rs.getString("COURSE#"));
+ }
+ conn.close();
+ } catch
+(SQLException e) {
  e.printStackTrace();
  }
- return resultSet;
  }
 
  /*
- * Procedure to list B#, first name and last name of the TA
-of the class for a given class
- * If the class does not have a TA, report  The class has no TA. 
- * If the
-provided classid is invalid (i.e., not in the Classes table), report  The classid is invalid. 
+ * Procedures to display the tuples in each of the seven
+tables for this project.
+ * Procedure "show_classes"
  */
- public
-void getClassTA(String classId, String[] taBNumberOut, String[] firstNameOut, String[] lastNameOut) {
+ public static void showClasses() {
  try {
+ Connection
+conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ Statement
+stmt = conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM CLASSES");
+ while (rs.next()) {
 
-PreparedStatement statement = connection.prepareStatement("SELECT CL.CLASSID FROM CLASSES CL WHERE UPPER(CL.CLASSID) =
-UPPER(?)");
- statement.setString(1, classId);
- ResultSet resultSet = statement.executeQuery();
- if
-(!resultSet.next()) {
- System.out.println("The classid is invalid.");
- return;
+System.out.println(rs.getString("CLASSID") + " " + rs.getString("DEPT_CODE") + " " +
+rs.getString("COURSE#"));
  }
-
- statement =
-connection.prepareStatement("SELECT ST.B#, ST.FIRST_NAME, ST.LAST_NAME FROM STUDENTS ST, CLASSES CL WHERE
-UPPER(CL.CLASSID) = UPPER(?) AND UPPER(ST.B#) = UPPER(CL.TA_B#)");
- statement.setString(1, classId);
- resultSet =
-statement.executeQuery();
- if (resultSet.next()) {
- taBNumberOut[0] = resultSet.getString("B#");
- firstNameOut[0] =
-resultSet.getString("FIRST_NAME");
- lastNameOut[0] = resultSet.getString("LAST_NAME");
- } else {
-
-System.out.println("The class has no TA.");
- }
+ conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
@@ -562,55 +523,152 @@ System.out.println("The class has no TA.");
 
  /*
  *
-Recursive helper procedure to get direct and indirect prerequisites
- * If course C1 has course C2 as a prerequisite, C2
-is a direct prerequisite.
- * If C2 has course C3 has a prerequisite, then C3 is an indirect prerequisite for C1.
+Procedures to display the tuples in each of the seven tables for this project.
+ * Procedure "show_enrollments"
  */
 
-public void getPrerequisiteCourse(String deptCode, String courseNumber, String[] prerequisitesOut) {
+public static void showEnrollments() {
  try {
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ Statement stmt =
+conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM ENROLLMENTS");
+ while (rs.next()) {
 
-PreparedStatement statement = connection.prepareStatement("SELECT PRE_DEPT_CODE, PRE_COURSE# FROM PREREQUISITES WHERE
-UPPER(DEPT_CODE) = UPPER(?) AND COURSE# = ?");
- statement.setString(1, deptCode);
- statement.setString(2,
-courseNumber);
- ResultSet resultSet = statement.executeQuery();
- while (resultSet.next()) {
- String preDeptCode =
-resultSet.getString("PRE_DEPT_CODE");
- String preCourseNumber = resultSet.getString("PRE_COURSE#");
-
-prerequisitesOut[0] += preDeptCode + preCourseNumber + ",";
- getPrerequisiteCourse(preDeptCode, preCourseNumber,
-prerequisitesOut);
+System.out.println(rs.getString("B#") + " " + rs.getString("CLASSID"));
  }
- } catch (SQLException e) {
+ conn.close();
+ } catch
+(SQLException e) {
  e.printStackTrace();
  }
  }
 
  /*
- * Procedure to list all
-prerequisite courses for given course (with dept_code and course#)
- * Including both direct and indirect prerequisite
-courses
+ * Procedures to display the tuples in each of the seven
+tables for this project.
+ * Procedure "show_prerequisites"
  */
- public void getClassPrerequisites(String deptCode, String courseNumber, String[] prerequisitesOut) {
+ public static void showPrerequisites() {
+ try {
 
-try {
- if (!validateCourseDeptCode(deptCode, courseNumber)) {
- System.out.println(deptCode + courseNumber + " does
-not exist.");
+Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+
+Statement stmt = conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM PREREQUISITES");
+ while
+(rs.next()) {
+ System.out.println(rs.getString("DEPT_CODE") + " " + rs.getString("COURSE#") + " " +
+rs.getString("PRE_DEPT_CODE") + " " + rs.getString("PRE_COURSE#"));
+ }
+ conn.close();
+ } catch (SQLException e)
+{
+ e.printStackTrace();
+ }
+ }
+
+ /*
+ * Procedures to display the tuples in each of the seven tables for this
+project.
+ * Procedure "show_logs"
+ */
+ public static void showLogs() {
+ try {
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ Statement stmt =
+conn.createStatement();
+ ResultSet rs = stmt.executeQuery("SELECT * FROM LOGS");
+ while (rs.next()) {
+
+System.out.println(rs.getString("LOG_ID") + " " + rs.getString("LOG_MESSAGE"));
+ }
+ conn.close();
+ } catch
+(SQLException e) {
+ e.printStackTrace();
+ }
+ }
+
+ /*
+ * Procedure to list B#, first name and last name of the TA of
+the class for a given class
+ * If the class does not have a TA, report   The class has no TA.  
+ * If the
+provided classid is invalid (i.e., not in the Classes table), report   The classid is invalid.  
+ */
+ public
+static void classTA(String classId, String[] taBNumberOut, String[] firstNameOut, String[] lastNameOut) {
+ String
+lClassId = "";
+ try {
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
+"username", "password");
+ PreparedStatement stmt = conn.prepareStatement("SELECT CLASSID FROM CLASSES WHERE
+UPPER(CLASSID) = UPPER(?)");
+ stmt.setString(1, classId);
+ ResultSet rs = stmt.executeQuery();
+ if (rs.next()) {
+
+lClassId = rs.getString("CLASSID");
+ }
+ if (lClassId.isEmpty()) {
+ System.out.println("The classid is
+invalid.");
+ conn.close();
  return;
  }
- getPrerequisiteCourse(deptCode, courseNumber, prerequisitesOut);
- if
-(prerequisitesOut[0].length() > 0 && prerequisitesOut[0].endsWith(",")) {
- prerequisitesOut[0] =
-prerequisitesOut[0].substring(0, prerequisitesOut[0].length() - 1);
+ PreparedStatement stmt2 = conn.prepareStatement("SELECT B#, FIRST_NAME,
+LAST_NAME FROM STUDENTS ST, CLASSES CL WHERE UPPER(CL.CLASSID) = UPPER(?) AND UPPER(ST.B#) = UPPER(CL.TA_B#)");
+
+stmt2.setString(1, classId);
+ ResultSet rs2 = stmt2.executeQuery();
+ if (rs2.next()) {
+ taBNumberOut[0] =
+rs2.getString("B#");
+ firstNameOut[0] = rs2.getString("FIRST_NAME");
+ lastNameOut[0] =
+rs2.getString("LAST_NAME");
+ } else {
+ System.out.println("The class has no TA.");
  }
+ conn.close();
+ } catch
+(SQLException e) {
+ e.printStackTrace();
+ }
+ }
+
+ /*
+ * Recursive helper procedure to get direct and indirect
+prerequisites
+ * If course C1 has course C2 as a prerequisite, C2 is a direct prerequisite.
+ * If C2 has course C3 has
+a prerequisite, then C3 is an indirect prerequisite for C1.
+ */
+ public static void getPrereqCourse(String deptCode,
+String courseNumber, String[] prereqOut) {
+ try {
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ PreparedStatement
+stmt = conn.prepareStatement("SELECT PRE_DEPT_CODE, PRE_COURSE# FROM PREREQUISITES WHERE UPPER(DEPT_CODE) = UPPER(?)
+AND COURSE# = ?");
+ stmt.setString(1, deptCode);
+ stmt.setString(2, courseNumber);
+ ResultSet rs =
+stmt.executeQuery();
+ while (rs.next()) {
+ String tempDeptCode = rs.getString("PRE_DEPT_CODE");
+ String
+tempCourseNumber = rs.getString("PRE_COURSE#");
+ prereqOut[0] += tempDeptCode + tempCourseNumber + ",";
+
+getPrereqCourse(tempDeptCode, tempCourseNumber, prereqOut);
+ }
+ conn.close();
  } catch (SQLException e) {
 
 e.printStackTrace();
@@ -618,189 +676,232 @@ e.printStackTrace();
  }
 
  /*
- * Procedure to Enroll Student for given class (insert a tuple into Enrollments
-table)
- * If the student is not in the Students table, report  The B# is invalid. 
- * If the classid is not
-in the classes table, report  The classid is invalid. 
- * If the class is not offered in the current semester
-(i.e., Fall 2018), reject the enrollment:
- *  Cannot enroll into a class from a previous semester. 
- * If
-the class is already full before the enrollment request, reject the enrollment request:
- *  The class is already
-full. 
- * If the student is already in the class, report  The student is already in the class. 
- * If
-the student is already enrolled in four other classes in the same semester and the same year, report:
- *  The
-student will be overloaded with the new enrollment.  but still allow the student to be enrolled.
- * If the student
-is already enrolled in five other classes in the same semester and the same year, report:
- *  Students cannot be
-enrolled in more than five classes in the same semester.  and reject the enrollment.
- * If the student has not
-completed the required prerequisite courses with at least a grade C, reject the enrollment:
- *  Prerequisite not
-satisfied. 
- * For all the other cases, the requested enrollment should be carried out successfully.
+ * Procedure to list all prerequisite courses for given course (with dept_code and
+course#)
+ * Including both direct and indirect prerequisite courses
  */
- public
-void enrollStudent(String bNumber, String classId) {
+ public static void classPrereq(String
+deptCode, String courseNumber, String[] prereqOut) {
  try {
- if (!validateStudentBNumber(bNumber)) {
+ if (!validateDeptCodeCourse(deptCode, courseNumber)) {
 
-System.out.println("The B# is invalid.");
+System.out.println(deptCode + courseNumber + " does not exist.");
  return;
- } else if (!validateClassId(classId)) {
+ }
+ getPrereqCourse(deptCode,
+courseNumber, prereqOut);
+ if (prereqOut[0].length() > 0 && prereqOut[0].endsWith(",")) {
+ prereqOut[0] =
+prereqOut[0].substring(0, prereqOut[0].length() - 1);
+ }
+ } catch (Exception e) {
+ e.printStackTrace();
+ }
+ }
 
-System.out.println("The classid is invalid.");
- return;
- } else if (!validateCurrentSemesterClass(classId)) {
 
-System.out.println("Cannot enroll into a class from a previous semester.");
+/*
+ * Procedure to Enroll Student for given class (insert a tuple into Enrollments table)
+ * If the student is not in
+the Students table, report   The B# is invalid.  
+ * If the classid is not in the classes table, report
+  The classid is invalid.  
+ * If the class is not offered in the current semester (i.e., Fall 2018), reject
+the enrollment:
+ *   Cannot enroll into a class from a previous semester.  
+ * If the class is already full
+before the enrollment request, reject the enrollment request:
+ *   The class is already full.  
+ * If the
+student is already in the class, report   The student is already in the class.  
+ * If the student is already
+enrolled in four other classes in the same semester and the same year, report:
+ *   The student will be overloaded
+with the new enrollment.   but still allow the student to be enrolled.
+ * If the student is already enrolled in
+five other classes in the same semester and the same year, report:
+ *   Students cannot be enrolled in more than
+five classes in the same semester.   and reject the enrollment.
+ * If the student has not completed the required
+prerequisite courses with at least a grade C, reject the enrollment:
+ *   Prerequisite not satisfied.  
+ * For
+all the other cases, the requested enrollment should be carried out successfully.
+ */
+ public static void
+enrollStudent(String bNumber, String classId) {
+ try {
+ if (!validateStudentB(bNumber)) {
+ System.out.println("The
+B# is invalid.");
  return;
- } else if
-(validateClassFull(classId)) {
- System.out.println("The class is already full.");
+ } else if (!validateStudentClassId(classId)) {
+ System.out.println("The classid is
+invalid.");
  return;
- } else if
-(validateStudentEnrollments(bNumber, classId)) {
- System.out.println("The student is already in the class.");
+ } else if (!validateCurrentSemClass(classId)) {
+ System.out.println("Cannot enroll into a
+class from a previous semester.");
+ return;
+ } else if (validateClassFull(classId)) {
+ System.out.println("The
+class is already full.");
+ return;
+ } else if (validateStudentEnrollments(bNumber, classId)) {
 
-return;
- } else if (getStudentEnrollmentCount(bNumber) >= 5) {
- System.out.println("Students cannot be enrolled in
-more than five classes in the same semester.");
+System.out.println("The student is already in the class.");
  return;
- } else if (getStudentEnrollmentCount(bNumber) == 4) {
+ } else if (getStudentEnrollCount(bNumber) >=
+5) {
+ System.out.println("Students cannot be enrolled in more than five classes in the same semester.");
+ return;
 
-System.out.println("The student will be overloaded with the new enrollment.");
- } else if
-(!validateStudentPrerequisiteGrade(bNumber, classId)) {
+} else if (!validateStudentPrereqGrade(bNumber, classId)) {
  System.out.println("Prerequisite not satisfied.");
 
 return;
  }
-
- PreparedStatement statement = connection.prepareStatement("INSERT INTO ENROLLMENTS VALUES (?, ?,
+ if (getStudentEnrollCount(bNumber) == 4) {
+ System.out.println("The student will be overloaded with the
+new enrollment.");
+ }
+ Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
+"username", "password");
+ PreparedStatement stmt = conn.prepareStatement("INSERT INTO ENROLLMENTS VALUES (?, ?,
 NULL)");
- statement.setString(1, bNumber);
- statement.setString(2, classId);
- statement.executeUpdate();
+ stmt.setString(1, bNumber);
+ stmt.setString(2, classId);
+ stmt.executeUpdate();
 
 System.out.println("Successfully Enrolled student with B# --> " + bNumber + " and Classid --> " + classId);
 
-connection.commit();
+conn.commit();
+ conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
  }
 
  /*
- * Procedure to drop a student
-from a class (delete a tuple from Enrollments table)
- * If the student is not in the Students table, report  The
-B# is invalid. 
- * If the classid is not in the Classes table, report  The classid is invalid. 
- * If
-the student is not enrolled in the class, report  The student is not enrolled in the class. 
- * If the class
-is not offered in Fall 2018, reject the drop attempt and report:
- *  Only enrollment in the current semester can
-be dropped. 
- * If dropping the student from class would cause a violation of the prerequisite requirement, reject
-the drop attempt:
- *  The drop is not permitted because another class the student registered uses it as a
-prerequisite. 
+ * Procedure to drop
+a student from a class (delete a tuple from Enrollments table)
+ * If the student is not in the Students table, report
+  The B# is invalid.  
+ * If the classid is not in the Classes table, report   The classid is
+invalid.  
+ * If the student is not enrolled in the class, report   The student is not enrolled in the
+class.  
+ * If the class is not offered in Fall 2018, reject the drop attempt and report:
+ *   Only enrollment
+in the current semester can be dropped.  
+ * If dropping the student from class would cause a violation of the
+prerequisite requirement, reject the drop attempt:
+ *   The drop is not permitted because another class the student
+registered uses it as a prerequisite.  
  * In all the other cases, the student will be dropped from the class.
- * If the class is the last
-class for the student, delete and report  This student is not enrolled in any classes. 
- * If the student is
-the last student in the class, delete and report  The class now has no students. 
+ *
+If the class is the last class for the student, delete and report   This student is not enrolled in any
+classes.  
+ * If the student is the last student in the class, delete and report   The class now has no
+students.  
  */
- public void
-deleteStudentEnrollment(String bNumber, String classId) {
+ public static void deleteStudentEnrollment(String bNumber, String classId) {
  try {
- if (!validateStudentBNumber(bNumber)) {
-
-System.out.println("The B# is invalid.");
- return;
- } else if (!validateClassId(classId)) {
-
-System.out.println("The classid is invalid.");
- return;
- } else if (!validateStudentEnrollments(bNumber, classId))
-{
- System.out.println("The student is not enrolled in the class.");
+ if
+(!validateStudentB(bNumber)) {
+ System.out.println("The B# is invalid.");
  return;
  } else if
-(!validateCurrentSemesterClass(classId)) {
- System.out.println("Only enrollment in the current semester can be
-dropped.");
+(!validateStudentClassId(classId)) {
+ System.out.println("The classid is invalid.");
  return;
- } else if (!validateStudentPrerequisite(bNumber, classId)) {
- System.out.println("The drop is
-not permitted because another class the student registered uses it as a prerequisite.");
+ } else if
+(!validateStudentEnrollments(bNumber, classId)) {
+ System.out.println("The student is not enrolled in the class.");
+
+return;
+ } else if (!validateCurrentSemClass(classId)) {
+ System.out.println("Only enrollment in the current semester
+can be dropped.");
+ return;
+ } else if (!validateStudentPrereq(bNumber, classId)) {
+ System.out.println("The drop
+is not permitted because another class the student registered uses it as a prerequisite.");
  return;
  }
-
  if
 (validateLastEnrollment(bNumber)) {
- System.out.println("This student is no more enrolled in any classes.");
+ System.out.println("This student is not enrolled in any classes.");
  }
-
-
-if (validateLastStudent(classId)) {
+ if
+(validateLastStudent(classId)) {
  System.out.println("The class now has no students.");
  }
-
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
  PreparedStatement
-statement = connection.prepareStatement("DELETE FROM ENROLLMENTS WHERE UPPER(B#) = UPPER(?) AND UPPER(CLASSID) =
-UPPER(?)");
- statement.setString(1, bNumber);
- statement.setString(2, classId);
- statement.executeUpdate();
+stmt = conn.prepareStatement("DELETE FROM ENROLLMENTS WHERE UPPER(B#) = UPPER(?) AND UPPER(CLASSID) = UPPER(?)");
 
-System.out.println("Successfully Deleted Student Enrollment with B# --> " + bNumber + " and Classid --> " +
-classId);
- connection.commit();
+stmt.setString(1, bNumber);
+ stmt.setString(2, classId);
+ stmt.executeUpdate();
+ System.out.println("Successfully
+Deleted Student Enrollment with B# --> " + bNumber + " and Classid --> " + classId);
+ conn.commit();
+
+conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
  }
 
  /*
- * Procedure to
-delete Student (delete a tuple from Students table)
- * If the student is not in the Students table, report  The B#
-is invalid. 
- */
- public void deleteStudent(String bNumber) {
+ * Procedure to delete Student (delete
+a tuple from Students table)
+ * If the student is not in the Students table, report   The B# is invalid.  
+
+*/
+ public static void deleteStudent(String bNumber) {
  try {
- if (!validateStudentBNumber(bNumber)) {
+ if (!validateStudentB(bNumber)) {
 
 System.out.println("The B# is invalid.");
  return;
  }
+ Connection conn =
+DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
+ PreparedStatement
+stmt = conn.prepareStatement("DELETE FROM STUDENTS WHERE UPPER(B#) = UPPER(?)");
+ stmt.setString(1, bNumber);
 
- PreparedStatement statement =
-connection.prepareStatement("DELETE FROM STUDENTS WHERE UPPER(B#) = UPPER(?)");
- statement.setString(1, bNumber);
-
-statement.executeUpdate();
+stmt.executeUpdate();
  System.out.println("Successfully Deleted Student with B# --> " + bNumber);
+ conn.commit();
 
-connection.commit();
+conn.close();
  } catch (SQLException e) {
  e.printStackTrace();
  }
  }
 
- public static void main(String[]
-args) {
- StudentRegistrationSystem system = new StudentRegistrationSystem();
- // Call the required methods
+ public static void main(String[] args) {
+
+// Test the functions and procedures
+ showStudents();
+ showTAs();
+ showCourses();
+ showClasses();
+
+showEnrollments();
+ showPrerequisites();
+ showLogs();
+
+ String bNumber = "B12345";
+ String classId = "C123";
+
+enrollStudent(bNumber, classId);
+ deleteStudentEnrollment(bNumber, classId);
+ deleteStudent(bNumber);
 
 }
 }
