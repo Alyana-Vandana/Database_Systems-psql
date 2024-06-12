@@ -398,10 +398,10 @@ bNumber);
  while (rs.next()) {
  lClassId =
 rs.getString("CLASSID");
- getCourseInfo(lClassId, new String[]{lCurrDeptCode}, new String[]{lCurrCourseNumber});
+ getCourseInfo(lClassId, new String[]{CurrDeptCode}, new String[]{CurrCourseNumber});
 
-classPrereq(lCurrDeptCode, lCurrCourseNumber, new String[]{lPrereq});
- if (lPrereq.contains(lDeptCode + lCourseNumber))
+classPrereq(CurrDeptCode, CurrCourseNumber, new String[]{Prereq});
+ if (Prereq.contains(DeptCode + CourseNumber))
 {
  conn.close();
  return false;
