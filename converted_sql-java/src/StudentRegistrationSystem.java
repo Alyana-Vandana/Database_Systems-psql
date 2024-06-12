@@ -39,8 +39,7 @@ DEPTCODE of a COURSES
 validCount = 0;
  try {
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe","username", "password");
- PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM COURSES WHERE
-UPPER(DEPT_CODE) = UPPER(?) AND COURSE# = ?");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM COURSES WHERE UPPER(DEPT_CODE) = UPPER(?) AND COURSE# = ?");
  stmt.setString(1, deptCode);
  stmt.setString(2, courseNumber);
 
@@ -93,8 +92,7 @@ static boolean validateCurrentSemClass(String classId) {
  Connection conn =
 DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
  PreparedStatement
-stmt = conn.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?) AND UPPER(SEMESTER) = 'FALL'
-AND YEAR = 2018");
+stmt = conn.prepareStatement("SELECT COUNT(1) FROM CLASSES WHERE UPPER(CLASSID) = UPPER(?) AND UPPER(SEMESTER) = 'FALL'AND YEAR = 2018");
  stmt.setString(1, classId);
  ResultSet rs = stmt.executeQuery();
  if (rs.next()) {
@@ -149,8 +147,7 @@ lDeptCodeOut = "";
 try {
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username",
 "password");
- PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS E WHERE UPPER(E.B#) =
-UPPER(?)");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS E WHERE UPPER(E.B#) = UPPER(?)");
  stmt.setString(1, bNumber);
  ResultSet rs = stmt.executeQuery();
  if (rs.next()) {
@@ -158,8 +155,7 @@ UPPER(?)");
 rs.getInt(1);
  }
  if (enrollmentsCount > 0) {
- PreparedStatement stmt2 = conn.prepareStatement("SELECT CLASSID FROM
-ENROLLMENTS E WHERE UPPER(E.B#) = UPPER(?)");
+ PreparedStatement stmt2 = conn.prepareStatement("SELECT CLASSID FROM ENROLLMENTS E WHERE UPPER(E.B#) = UPPER(?)");
  stmt2.setString(1, bNumber);
  ResultSet rs2 = stmt2.executeQuery();
 
