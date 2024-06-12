@@ -196,10 +196,8 @@ DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "
 
 getCourseInfo(classId, new String[]{lDeptCode}, new String[]{lCourseNumber});
  PreparedStatement stmt =
-conn.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID)
-!= UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND C.YEAR = 2018");
- stmt.setString(1,
-bNumber);
+conn.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID)!= UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND C.YEAR = 2018");
+ stmt.setString(1,bNumber);
  stmt.setString(2, classId);
  ResultSet rs = stmt.executeQuery();
  while (rs.next()) {
@@ -257,8 +255,7 @@ studentCount = 0;
  try {
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
 "username", "password");
- PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS WHERE
-UPPER(CLASSID) = UPPER(?)");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS WHERE UPPER(CLASSID) = UPPER(?)");
  stmt.setString(1, classId);
  ResultSet rs = stmt.executeQuery();
  if (rs.next()) {
@@ -308,9 +305,7 @@ enrollCount = 0;
  try {
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
 "username", "password");
- PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS EN,
-CLASSES CL WHERE UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(CL.CLASSID) AND UPPER(CL.SEMESTER) = 'FALL' AND
-CL.YEAR = 2018");
+ PreparedStatement stmt = conn.prepareStatement("SELECT COUNT(1) FROM ENROLLMENTS EN,CLASSES CL WHERE UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(CL.CLASSID) AND UPPER(CL.SEMESTER) = 'FALL' AND CL.YEAR = 2018");
  stmt.setString(1, bNumber);
  ResultSet rs = stmt.executeQuery();
  if (rs.next()) {
@@ -335,8 +330,7 @@ getClassId(String courseInfo) {
  Connection conn =
 DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
  PreparedStatement
-stmt = conn.prepareStatement("SELECT CLASSID FROM CLASSES CL WHERE UPPER(CL.DEPT_CODE) || CL.COURSE# = UPPER(?) AND NOT
-(UPPER(CL.SEMESTER) = 'FALL' AND CL.YEAR = 2018)");
+stmt = conn.prepareStatement("SELECT CLASSID FROM CLASSES CL WHERE UPPER(CL.DEPT_CODE) || CL.COURSE# = UPPER(?) AND NOT (UPPER(CL.SEMESTER) = 'FALL' AND CL.YEAR = 2018)");
  stmt.setString(1, courseInfo);
  ResultSet rs =
 stmt.executeQuery();
@@ -361,8 +355,7 @@ grade = "";
  try {
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
 "username", "password");
- PreparedStatement stmt = conn.prepareStatement("SELECT EN.LGRADE FROM ENROLLMENTS EN
-WHERE UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(?)");
+ PreparedStatement stmt = conn.prepareStatement("SELECT EN.LGRADE FROM ENROLLMENTS EN WHERE UPPER(EN.B#) = UPPER(?) AND UPPER(EN.CLASSID) = UPPER(?)");
  stmt.setString(1, bNumber);
  stmt.setString(2,
 classId);
@@ -397,8 +390,7 @@ DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "
 
 getCourseInfo(classId, new String[]{lDeptCode}, new String[]{lCourseNumber});
  PreparedStatement stmt =
-conn.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID)
-!= UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND C.YEAR = 2018");
+conn.prepareStatement("SELECT E.CLASSID FROM ENROLLMENTS E, CLASSES C WHERE UPPER(E.B#) = UPPER(?) AND UPPER(E.CLASSID)!= UPPER(?) AND E.CLASSID = C.CLASSID AND UPPER(C.SEMESTER) = 'FALL' AND C.YEAR = 2018");
  stmt.setString(1,
 bNumber);
  stmt.setString(2, classId);
@@ -601,9 +593,8 @@ lClassId = "";
  try {
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
 "username", "password");
- PreparedStatement stmt = conn.prepareStatement("SELECT CLASSID FROM CLASSES WHERE
-UPPER(CLASSID) = UPPER(?)");
- stmt.setString(1, classId);
+ PreparedStatement stmt = conn.prepareStatement("SELECT CLASSID FROM CLASSES WHEREUPPER(CLASSID) = UPPER(?)");
+stmt.setString(1, classId);
  ResultSet rs = stmt.executeQuery();
  if (rs.next()) {
 
@@ -649,8 +640,7 @@ String courseNumber, String[] prereqOut) {
  Connection conn =
 DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe", "username", "password");
  PreparedStatement
-stmt = conn.prepareStatement("SELECT PRE_DEPT_CODE, PRE_COURSE# FROM PREREQUISITES WHERE UPPER(DEPT_CODE) = UPPER(?)
-AND COURSE# = ?");
+stmt = conn.prepareStatement("SELECT PRE_DEPT_CODE, PRE_COURSE# FROM PREREQUISITES WHERE UPPER(DEPT_CODE) = UPPER(?) AND COURSE# = ?");
  stmt.setString(1, deptCode);
  stmt.setString(2, courseNumber);
  ResultSet rs =
@@ -762,8 +752,7 @@ new enrollment.");
  }
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
 "username", "password");
- PreparedStatement stmt = conn.prepareStatement("INSERT INTO ENROLLMENTS VALUES (?, ?,
-NULL)");
+ PreparedStatement stmt = conn.prepareStatement("INSERT INTO ENROLLMENTS VALUES (?, ?,NULL)");
  stmt.setString(1, bNumber);
  stmt.setString(2, classId);
  stmt.executeUpdate();
