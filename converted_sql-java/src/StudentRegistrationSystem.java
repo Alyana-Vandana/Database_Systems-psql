@@ -398,7 +398,7 @@ bNumber);
  while (rs.next()) {
  lClassId =
 rs.getString("CLASSID");
- getCourseInfo(lClassId, new String[]{CurrDeptCode}, new String[]{CurrCourseNumber});
+ getCourseInfo(lClassId, new String[]{lCurrDeptCode}, new String[]{CurrCourseNumber});
 
 classPrereq(CurrDeptCode, CurrCourseNumber, new String[]{Prereq});
  if (Prereq.contains(DeptCode + CourseNumber))
