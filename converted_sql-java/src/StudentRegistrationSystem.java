@@ -601,13 +601,11 @@ stmt.setString(1, classId);
 lClassId = rs.getString("CLASSID");
  }
  if (lClassId.isEmpty()) {
- System.out.println("The classid is
-invalid.");
+ System.out.println("The classid is invalid.");
  conn.close();
  return;
  }
- PreparedStatement stmt2 = conn.prepareStatement("SELECT B#, FIRST_NAME,
-LAST_NAME FROM STUDENTS ST, CLASSES CL WHERE UPPER(CL.CLASSID) = UPPER(?) AND UPPER(ST.B#) = UPPER(CL.TA_B#)");
+ PreparedStatement stmt2 = conn.prepareStatement("SELECT B#, FIRST_NAME,LAST_NAME FROM STUDENTS ST, CLASSES CL WHERE UPPER(CL.CLASSID) = UPPER(?) AND UPPER(ST.B#) = UPPER(CL.TA_B#)");
 
 stmt2.setString(1, classId);
  ResultSet rs2 = stmt2.executeQuery();
@@ -717,20 +715,16 @@ all the other cases, the requested enrollment should be carried out successfully
 enrollStudent(String bNumber, String classId) {
  try {
  if (!validateStudentB(bNumber)) {
- System.out.println("The
-B# is invalid.");
+ System.out.println("The B# is invalid.");
  return;
  } else if (!validateStudentClassId(classId)) {
- System.out.println("The classid is
-invalid.");
+ System.out.println("The classid is invalid.");
  return;
  } else if (!validateCurrentSemClass(classId)) {
- System.out.println("Cannot enroll into a
-class from a previous semester.");
+ System.out.println("Cannot enroll into a class from a previous semester.");
  return;
  } else if (validateClassFull(classId)) {
- System.out.println("The
-class is already full.");
+ System.out.println("The class is already full.");
  return;
  } else if (validateStudentEnrollments(bNumber, classId)) {
 
@@ -747,8 +741,7 @@ System.out.println("The student is already in the class.");
 return;
  }
  if (getStudentEnrollCount(bNumber) == 4) {
- System.out.println("The student will be overloaded with the
-new enrollment.");
+ System.out.println("The student will be overloaded with the new enrollment.");
  }
  Connection conn = DriverManager.getConnection("jdbc:oracle:thin:@localhost:1521:xe",
 "username", "password");
@@ -805,12 +798,10 @@ students.
 
 return;
  } else if (!validateCurrentSemClass(classId)) {
- System.out.println("Only enrollment in the current semester
-can be dropped.");
+ System.out.println("Only enrollment in the current semester can be dropped.");
  return;
  } else if (!validateStudentPrereq(bNumber, classId)) {
- System.out.println("The drop
-is not permitted because another class the student registered uses it as a prerequisite.");
+ System.out.println("The dropis not permitted because another class the student registered uses it as a prerequisite.");
  return;
  }
  if
@@ -829,8 +820,7 @@ stmt = conn.prepareStatement("DELETE FROM ENROLLMENTS WHERE UPPER(B#) = UPPER(?)
 stmt.setString(1, bNumber);
  stmt.setString(2, classId);
  stmt.executeUpdate();
- System.out.println("Successfully
-Deleted Student Enrollment with B# --> " + bNumber + " and Classid --> " + classId);
+ System.out.println("SuccessfullyDeleted Student Enrollment with B# --> " + bNumber + " and Classid --> " + classId);
  conn.commit();
 
 conn.close();
